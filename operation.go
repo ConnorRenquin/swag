@@ -240,7 +240,7 @@ func (operation *Operation) ParseMetadata(attribute, lowerAttribute, lineRemaind
 	return nil
 }
 
-var paramPattern = regexp.MustCompile(`(\S+)\s+(\w+)\s+([\S. ]+?)\s+(\w+)\s+"([^"]+)"`)
+var paramPattern = regexp.MustCompile(`(\S+)\s+(\w+)\s+([\S. ]+?)\s+(\w+)\s+"([^"]+)"(?:\s+([\w\-\.+]+\/[\w\-\.+]+))?`)
 
 func findInSlice(arr []string, target string) bool {
 	for _, str := range arr {
@@ -260,7 +260,7 @@ func findInSlice(arr []string, target string) bool {
 // E.g. @Param   some_id     path    int     true        "Some ID".
 func (operation *Operation) ParseParamComment(commentLine string, astFile *ast.File) error {
 	matches := paramPattern.FindStringSubmatch(commentLine)
-	if len(matches) != 6 {
+	if len(matches) != 6 && len(matches) != 7 {
 		return fmt.Errorf("missing required param comment parameters \"%s\"", commentLine)
 	}
 

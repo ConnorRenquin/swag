@@ -2240,3 +2240,52 @@ func TestResponseSchemaWithCustomMimeTypeV3(t *testing.T) {
 		require.Equal(t, "#/components/schemas/model.OrderRow", apiJsonContent.Spec.Schema.Ref.Ref)
 	})
 }
+
+func TestParseParamCommentByBodyWithMimeTypeV3(t *testing.T) {
+	t.Parallel()
+
+	comment := `@Param data body string true "Request body" application/xml`
+	operation := NewOperationV3(New())
+
+	err := operation.ParseComment(comment, nil)
+	assert.NoError(t, err)
+
+	requestBody := operation.RequestBody
+	assert.NotNil(t, requestBody)
+
+	requestBodySpec := requestBody.Spec.Spec
+	assert.NotNil(t, requestBodySpec)
+	assert.Equal(t, "Request body", requestBodySpec.Description)
+	assert.True(t, requestBodySpec.Required)
+	
+	// Check that the application/xml content type was created
+	assert.NotNil(t, requestBodySpec.Content["application/xml"])
+	assert.NotNil(t, requestBodySpec.Content["application/xml"].Spec.Schema)
+	
+	// Check that text/plain was NOT created (even though it's a primitive)
+	assert.Nil(t, requestBodySpec.Content["text/plain"])
+}
+
+func TestParseParamCommentByBodyWithComplexMimeTypeV3(t *testing.T) {
+	t.Parallel()
+
+	comment := `@Param data body model.User true "User data" application/vnd.api+json`
+	operation := NewOperationV3(New())
+	operation.parser.addTestType("model.User")
+
+	err := operation.ParseComment(comment, nil)
+	assert.NoError(t, err)
+
+	requestBody := operation.RequestBody
+	assert.NotNil(t, requestBody)
+
+	requestBodySpec := requestBody.Spec.Spec
+	assert.NotNil(t, requestBodySpec)
+	
+	// Check that the custom mime type was created
+	assert.NotNil(t, requestBodySpec.Content["application/vnd.api+json"])
+	assert.NotNil(t, requestBodySpec.Content["application/vnd.api+json"].Spec.Schema)
+	
+	// Check that application/json was NOT created (even though it's an object)
+	assert.Nil(t, requestBodySpec.Content["application/json"])
+}
