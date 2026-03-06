@@ -1926,7 +1926,7 @@ func TestParseExtensionsV3(t *testing.T) {
 			"passthroughBehavior": "when_no_match",
 			"type":                "aws_proxy",
 			"uri":                 "${some_arn}",
-		}, operation.Responses.Extensions["x-amazon-apigateway-integration"])
+		}, operation.Extensions["x-amazon-apigateway-integration"])
 	}
 
 	// Test x-tagGroups
@@ -1944,7 +1944,7 @@ func TestParseExtensionsV3(t *testing.T) {
 					"PersonRisk",
 					"PersonDocuments",
 				},
-			}}, operation.Responses.Extensions["x-tagGroups"])
+			}}, operation.Extensions["x-tagGroups"])
 	}
 }
 
